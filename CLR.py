@@ -2,12 +2,10 @@ from tkinter import *
 import tkinter.font as font
 from tkinter import messagebox
 from PIL import ImageTk, Image
-from ctypes import windll, byref, create_unicode_buffer, create_string_buffer
 import time
 
-def _from_rgb(rgb):
-    return "#%02x%02x%02x" % rgb
 
+#-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* Initialization -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*#
 app = Tk()
 app.title("Create, Learn, Repeat !")
 app.geometry("400x500")
@@ -27,13 +25,13 @@ myFontBig = ("Dense 50")
 myFontLittle = ("Dense 20 italic")
 
 
-def set_Background():
-    canvas.create_image(0, 0, image = backgroundImage)
-
+#-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* Usefull functions -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*#
 def clear():
     canvas.delete("all")
-    set_Background()
+    canvas.create_image(0, 0, image = backgroundImage)
 
+
+#-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* Saving cards -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*#
 def saveQuestion(event, questionEntry, answerEntry):
     question = questionEntry.get()
     answer = answerEntry.get()
@@ -60,7 +58,34 @@ def saveQuestion(event, questionEntry, answerEntry):
 
         Add_Card_GUI(True)
 
+def Add_Card_GUI(event):
+    clear()
 
+    questionLabel = canvas.create_text(200, 50, text = "Q u e s t i o n", fill = "#dbdbdb", font = myFontBig)
+    questionEntry = Entry(canvas, bg = "#2C5F8D", width = "40", font = myFontLittle, fg = "white", justify = "center", relief = "flat")
+    canvas.create_window(200,110,window = questionEntry)
+
+    answerLabel = canvas.create_text(200, 220, text = "A n s w e r", fill = "#dbdbdb", font = myFontBig)
+    answerEntry = Entry(canvas, bg = "#256A85", width = "40", font = myFontLittle, fg = "white", justify = "center", relief = "flat")
+    canvas.create_window(200, 290, window = answerEntry)
+
+    SubmitButton = canvas.create_text(200, 400, text = "S u b m i t", fill = "#dbdbdb", font = myFontBig)
+
+    def enterSubmit(event):
+        canvas.itemconfig(SubmitButton, fill = "white")
+
+    def leaveSubmit(event):
+        canvas.itemconfig(SubmitButton, fill = "#dbdbdb")
+
+    canvas.tag_bind(SubmitButton, "<Enter>", enterSubmit)
+    canvas.tag_bind(SubmitButton, "<Leave>", leaveSubmit)
+    canvas.tag_bind(SubmitButton, "<Button-1>", lambda event: saveQuestion(event, questionEntry, answerEntry))
+
+    backButton = canvas.create_image(20, 485, image = backImage)
+    canvas.tag_bind(backButton, "<Button-1>", Del_Add_GUI)
+
+
+#-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* Deleting cards -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*#
 def Del_Card(event, questionList):
     selected = questionList.curselection()
 
@@ -80,6 +105,40 @@ def Del_Card(event, questionList):
 
     Del_Card_GUI(True)
 
+def Del_Card_GUI(event):
+    clear()
+
+    backButton = canvas.create_image(20, 485, image = backImage)
+    canvas.tag_bind(backButton, "<Button-1>", Del_Add_GUI)
+
+    questionList = Listbox(app, width = "40", height = "11", font = myFontLittle, bg = "#2C5F8D", fg = "white", relief = "flat")
+
+    with open("data/cards.txt", "r") as file:
+        data = file.readlines()
+
+    pos = 0
+
+    for i in range(len(data)):
+        if (i % 2) == 0:
+            questionList.insert(pos, data[i])
+            pos += 1
+
+    canvas.create_window(200, 180, window = questionList )
+
+    AddLabel = canvas.create_text(200, 420, text = "D e l e t e", fill = "#dbdbdb", font = myFontBig)
+
+    def enterAdd(event):
+        canvas.itemconfig(AddLabel, fill = "white")
+
+    def leaveAdd(event):
+        canvas.itemconfig(AddLabel, fill = "#dbdbdb")
+
+    canvas.tag_bind(AddLabel, "<Enter>", enterAdd)
+    canvas.tag_bind(AddLabel, "<Leave>", leaveAdd)
+    canvas.tag_bind(AddLabel, "<Button-1>", lambda event: Del_Card(event, questionList))
+
+
+#-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* Rest of the GUI -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*#
 def menu(event):
     clear()
 
@@ -117,67 +176,6 @@ def menu(event):
     canvas.tag_bind(SettingsLabel, "<Enter>", enterSettings)
     canvas.tag_bind(SettingsLabel, "<Leave>", leaveSettings)
 
-
-def Add_Card_GUI(event):
-    clear()
-
-    questionLabel = canvas.create_text(200, 50, text = "Q u e s t i o n", fill = "#dbdbdb", font = myFontBig)
-    questionEntry = Entry(canvas, bg = "#2C5F8D", width = "40", font = myFontLittle, fg = "white", justify = "center", relief = "flat")
-    canvas.create_window(200,110,window = questionEntry)
-
-    answerLabel = canvas.create_text(200, 220, text = "A n s w e r", fill = "#dbdbdb", font = myFontBig)
-    answerEntry = Entry(canvas, bg = "#256A85", width = "40", font = myFontLittle, fg = "white", justify = "center", relief = "flat")
-    canvas.create_window(200, 290, window = answerEntry)
-
-    SubmitButton = canvas.create_text(200, 400, text = "S u b m i t", fill = "#dbdbdb", font = myFontBig)
-
-    def enterSubmit(event):
-        canvas.itemconfig(SubmitButton, fill = "white")
-
-    def leaveSubmit(event):
-        canvas.itemconfig(SubmitButton, fill = "#dbdbdb")
-
-    canvas.tag_bind(SubmitButton, "<Enter>", enterSubmit)
-    canvas.tag_bind(SubmitButton, "<Leave>", leaveSubmit)
-    canvas.tag_bind(SubmitButton, "<Button-1>", lambda event: saveQuestion(event, questionEntry, answerEntry))
-
-    backButton = canvas.create_image(20, 485, image = backImage)
-    canvas.tag_bind(backButton, "<Button-1>", Del_Add_GUI)
-
-
-def Del_Card_GUI(event):
-    clear()
-
-    backButton = canvas.create_image(20, 485, image = backImage)
-    canvas.tag_bind(backButton, "<Button-1>", Del_Add_GUI)
-
-    questionList = Listbox(app, width = "40", height = "11", font = myFontLittle, bg = "#2C5F8D", fg = "white", relief = "flat")
-
-    with open("data/cards.txt", "r") as file:
-        data = file.readlines()
-
-    pos = 0
-
-    for i in range(len(data)):
-        if (i % 2) == 0:
-            questionList.insert(pos, data[i])
-            pos += 1
-
-    canvas.create_window(200, 180, window = questionList )
-
-    AddLabel = canvas.create_text(200, 420, text = "D e l e t e", fill = "#dbdbdb", font = myFontBig)
-
-    def enterAdd(event):
-        canvas.itemconfig(AddLabel, fill = "white")
-
-    def leaveAdd(event):
-        canvas.itemconfig(AddLabel, fill = "#dbdbdb")
-
-    canvas.tag_bind(AddLabel, "<Enter>", enterAdd)
-    canvas.tag_bind(AddLabel, "<Leave>", leaveAdd)
-    canvas.tag_bind(AddLabel, "<Button-1>", lambda event: Del_Card(event, questionList))
-
-
 def Del_Add_GUI(event):
     clear()
 
@@ -209,8 +207,10 @@ def Del_Add_GUI(event):
     backButton = canvas.create_image(20, 485, image = backImage)
     canvas.tag_bind(backButton, "<Button-1>", menu)
 
-set_Background()
-menu(True)
 
+#-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* Start the GUI -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*#
+clear()
+
+menu(True)
 
 app.mainloop()
