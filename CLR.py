@@ -1,9 +1,10 @@
 from tkinter import *
 import tkinter.font as font
+from tkinter import ttk
 from tkinter import messagebox
 from PIL import ImageTk, Image
-import time
-
+from os import listdir, getcwd
+from os.path import isfile, join
 
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* Initialization -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*#
 app = Tk()
@@ -24,6 +25,19 @@ app.iconphoto(False, iconImage)
 myFontBig = ("Dense 50")
 myFontLittle = ("Dense 20 italic")
 
+combostyle = ttk.Style()
+
+combostyle.theme_create("combostyle", parent="alt",
+                         settings = {"TCombobox":
+                                     {"configure":
+                                      {"selectbackground": "#396287",
+                                       "fieldbackground": "#2C5F8D",
+                                       "foreground": "white"
+                                       }}}
+                         )
+
+combostyle.theme_use('combostyle')
+
 
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* Usefull functions -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*#
 def clear():
@@ -32,29 +46,40 @@ def clear():
 
 
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* Saving cards -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*#
-def saveQuestion(event, questionEntry, answerEntry):
+def saveQuestion(event, questionEntry, answerEntry, groupCombo):
     question = questionEntry.get()
     answer = answerEntry.get()
+    group = groupCombo.get()
 
     if question == "" and answer == "":
         messagebox.showerror("Error", "You have to fill both entry.")
-        print("You need to fill both entry.")
     elif question == "":
         messagebox.showerror("Error", "You have to fill the 'Question' entry.")
-        print("You need to fill the 'Question' entry.")
     elif answer == "":
         messagebox.showerror("Error", "You have to fill the 'Answer' entry.")
-        print("You need to fill the 'Answer' entry.")
+    elif group == "":
+        messagebox.showerror("Error", "Please give a name to your group.")
+    elif group == "Create a new group":
+        messagebox.showerror("Error", "Please choose an other group or name a new one.")
     else:
-        with open("data/cards.txt", "r") as file:
-            data = file.readlines()
+        files = ["data/cards.txt", "data/" + group + ".txt"]
+        for i in range(2):
+            try:
+                with open(files[i], "r") as file:
+                    data = file.readlines()
+            except FileNotFoundError:
+                with open(files[i], "w") as file:
+                    file.write("")
 
-        data.append(question + "\n")
-        data.append(answer + "\n")
+                with open(files[i], "r") as file:
+                    data = file.readlines()
 
-        with open("data/cards.txt", "w") as file:
-            for i in range(len(data)):
-                file.write(data[i])
+            data.append(question + "\n")
+            data.append(answer + "\n")
+
+            with open(files[i], "w") as file:
+                for i in range(len(data)):
+                    file.write(data[i])
 
         Add_Card_GUI(True)
 
@@ -65,9 +90,24 @@ def Add_Card_GUI(event):
     questionEntry = Entry(canvas, bg = "#2C5F8D", width = "40", font = myFontLittle, fg = "white", justify = "center", relief = "flat")
     canvas.create_window(200,110,window = questionEntry)
 
-    answerLabel = canvas.create_text(200, 220, text = "A n s w e r", fill = "#dbdbdb", font = myFontBig)
+    answerLabel = canvas.create_text(200, 180, text = "A n s w e r", fill = "#dbdbdb", font = myFontBig)
     answerEntry = Entry(canvas, bg = "#256A85", width = "40", font = myFontLittle, fg = "white", justify = "center", relief = "flat")
-    canvas.create_window(200, 290, window = answerEntry)
+    canvas.create_window(200, 250, window = answerEntry)
+
+    groupLabel = canvas.create_text(50, 330, text = "G r o u p", fill = "#dbdbdb", font = myFontLittle)
+
+    path = getcwd() + "/data"
+    groupnames = [f for f in listdir(path) if isfile(join(path, f))]
+    groupList = ["Create a new group"]
+
+    for element in groupnames:
+        if not element == "cards.txt":
+            if element.endswith(".txt"):
+                groupList.append(element.replace(".txt", ""))
+
+    groupCombo = ttk.Combobox(app, values = groupList, width = "27", font = myFontLittle)
+    groupCombo.current(0)
+    canvas.create_window(225, 330, window = groupCombo)
 
     SubmitButton = canvas.create_text(200, 400, text = "S u b m i t", fill = "#dbdbdb", font = myFontBig)
 
@@ -79,7 +119,7 @@ def Add_Card_GUI(event):
 
     canvas.tag_bind(SubmitButton, "<Enter>", enterSubmit)
     canvas.tag_bind(SubmitButton, "<Leave>", leaveSubmit)
-    canvas.tag_bind(SubmitButton, "<Button-1>", lambda event: saveQuestion(event, questionEntry, answerEntry))
+    canvas.tag_bind(SubmitButton, "<Button-1>", lambda event: saveQuestion(event, questionEntry, answerEntry, groupCombo))
 
     backButton = canvas.create_image(20, 485, image = backImage)
     canvas.tag_bind(backButton, "<Button-1>", Del_Add_GUI)
