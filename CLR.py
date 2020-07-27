@@ -22,8 +22,8 @@ backImage = ImageTk.PhotoImage(Image.open("data/img/back.png").resize((32, 32)))
 iconImage = ImageTk.PhotoImage(Image.open("data/img/logo.png"))
 app.iconphoto(False, iconImage)
 
-myFontBig = ("Dense 50")
-myFontLittle = ("Dense 20 italic")
+myFontBig = ("Bahnschrift 40")
+myFontLittle = ("Bahnschrift 13 italic")
 
 combostyle = ttk.Style()
 
@@ -88,15 +88,15 @@ def saveQuestion(event, questionEntry, answerEntry, groupCombo):
 def Add_Card_GUI(event):
     clear()
 
-    questionLabel = canvas.create_text(200, 50, text = "Q u e s t i o n", fill = "#dbdbdb", font = myFontBig)
+    questionLabel = canvas.create_text(200, 50, text = "Question", fill = "#dbdbdb", font = myFontBig)
     questionEntry = Entry(canvas, bg = "#2C5F8D", width = "40", font = myFontLittle, fg = "white", justify = "center", relief = "flat")
     canvas.create_window(200,110,window = questionEntry)
 
-    answerLabel = canvas.create_text(200, 180, text = "A n s w e r", fill = "#dbdbdb", font = myFontBig)
+    answerLabel = canvas.create_text(200, 180, text = "Answer", fill = "#dbdbdb", font = myFontBig)
     answerEntry = Entry(canvas, bg = "#256A85", width = "40", font = myFontLittle, fg = "white", justify = "center", relief = "flat")
     canvas.create_window(200, 250, window = answerEntry)
 
-    groupLabel = canvas.create_text(50, 330, text = "G r o u p", fill = "#dbdbdb", font = myFontLittle)
+    groupLabel = canvas.create_text(50, 330, text = "Group", fill = "#dbdbdb", font = myFontLittle)
 
     path = getcwd() + "/data"
     groupnames = [f for f in listdir(path) if isfile(join(path, f))]
@@ -110,7 +110,7 @@ def Add_Card_GUI(event):
     groupCombo.current(0)
     canvas.create_window(225, 330, window = groupCombo)
 
-    SubmitButton = canvas.create_text(200, 400, text = "S u b m i t", fill = "#dbdbdb", font = myFontBig)
+    SubmitButton = canvas.create_text(200, 400, text = "Submit", fill = "#dbdbdb", font = myFontBig)
 
     def enterSubmit(event):
         canvas.itemconfig(SubmitButton, fill = "white")
@@ -207,7 +207,7 @@ def Del_Card_GUI(event):
 
     canvas.create_window(200, 180, window = questionList )
 
-    AddLabel = canvas.create_text(200, 420, text = "D e l e t e", fill = "#dbdbdb", font = myFontBig)
+    AddLabel = canvas.create_text(200, 420, text = "Delete", fill = "#dbdbdb", font = myFontBig)
 
     def enterAdd(event):
         canvas.itemconfig(AddLabel, fill = "white")
@@ -224,7 +224,7 @@ def Del_Card_GUI(event):
 def menu(event):
     clear()
 
-    CardsLabel = canvas.create_text(200, 110, text = "M a n a g e   c a r d s", fill = "#dbdbdb", font = myFontBig)
+    CardsLabel = canvas.create_text(200, 110, text = "Manage cards", fill = "#dbdbdb", font = myFontBig)
 
     def enterAdd(event):
         canvas.itemconfig(CardsLabel, fill = "white")
@@ -236,7 +236,7 @@ def menu(event):
     canvas.tag_bind(CardsLabel, "<Leave>", leaveAdd)
     canvas.tag_bind(CardsLabel, "<Button-1>", Del_Add_GUI)
 
-    LearnLabel = canvas.create_text(200, 235, text = "L e a r n", fill = "#dbdbdb", font = myFontBig)
+    LearnLabel = canvas.create_text(200, 235, text = "Learn", fill = "#dbdbdb", font = myFontBig)
 
     def enterLearn(event):
         canvas.itemconfig(LearnLabel, fill = "white")
@@ -247,7 +247,7 @@ def menu(event):
     canvas.tag_bind(LearnLabel, "<Enter>", enterLearn)
     canvas.tag_bind(LearnLabel, "<Leave>", leaveLearn)
 
-    SettingsLabel = canvas.create_text(200, 360, text = "S e t t i n g s", fill = "#dbdbdb", font = myFontBig)
+    SettingsLabel = canvas.create_text(200, 360, text = "Settings", fill = "#dbdbdb", font = myFontBig)
 
     def enterSettings(event):
         canvas.itemconfig(SettingsLabel, fill = "white")
@@ -261,7 +261,7 @@ def menu(event):
 def Del_Add_GUI(event):
     clear()
 
-    AddLabel = canvas.create_text(200, 110, text = "A d d   card", fill = "#dbdbdb", font = myFontBig)
+    AddLabel = canvas.create_text(200, 110, text = "Add card", fill = "#dbdbdb", font = myFontBig)
 
     def enterAdd(event):
         canvas.itemconfig(AddLabel, fill = "white")
@@ -274,7 +274,7 @@ def Del_Add_GUI(event):
     canvas.tag_bind(AddLabel, "<Button-1>", Add_Card_GUI)
 
 
-    DelLabel = canvas.create_text(200, 300, text = "D e l e t e   card", fill = "#dbdbdb", font = myFontBig)
+    DelLabel = canvas.create_text(200, 300, text = "Delete card", fill = "#dbdbdb", font = myFontBig)
 
     def enterDel(event):
         canvas.itemconfig(DelLabel, fill = "white")
