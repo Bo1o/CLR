@@ -48,7 +48,18 @@ def saveQuestion(event, questionEntry, answerEntry):
         messagebox.showerror("Error", "You have to fill the 'Answer' entry.")
         print("You need to fill the 'Answer' entry.")
     else:
-        pass
+        with open("data/cards.txt", "r") as file:
+            data = file.readlines()
+
+        data.append(question + "\n")
+        data.append(answer + "\n")
+
+        with open("data/cards.txt", "w") as file:
+            for i in range(len(data)):
+                file.write(data[i])
+
+        Add_Card_GUI(True)
+
 
 def Del_Card(event, questionList):
     selected = questionList.curselection()
@@ -138,7 +149,7 @@ def Del_Card_GUI(event):
     clear()
 
     backButton = canvas.create_image(20, 485, image = backImage)
-    canvas.tag_bind(backButton, "<Button-1>", menu)
+    canvas.tag_bind(backButton, "<Button-1>", Del_Add_GUI)
 
     questionList = Listbox(app, width = "40", height = "11", font = myFontLittle, bg = "#2C5F8D", fg = "white", relief = "flat")
 
