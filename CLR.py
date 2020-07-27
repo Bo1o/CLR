@@ -26,6 +26,7 @@ app.iconphoto(False, iconImage)
 
 myFontBig = ("Bahnschrift 40")
 myFontLittle = ("Bahnschrift 13 italic")
+myFontMedium = ("Bahnschrift 20")
 
 combostyle = ttk.Style()
 
@@ -44,6 +45,9 @@ combostyle.theme_use('combostyle')
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* Usefull functions -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*#
 def clear():
     canvas.delete("all")
+    app.unbind("<Return>")
+    app.unbind("<Delete>")
+    app.unbind("<Escape>")
     canvas.create_image(0, 0, image = backgroundImage)
     canvas.create_image(360, 480, image = logoandnameImage)
 
@@ -125,10 +129,13 @@ def Add_Card_GUI(event):
 
     SubmitButton = canvas.create_text(200, 400, text = "Submit", fill = "#dbdbdb", font = myFontBig)
     MakeLabel(SubmitButton)
+    canvas.tag_bind(SubmitButton, "<Button-1>", lambda event: saveQuestion(event, questionEntry, answerEntry, groupCombo))
+
+    app.bind("<Return>", lambda event: saveQuestion(event, questionEntry, answerEntry, groupCombo))
 
     backButton = canvas.create_image(20, 485, image = backImage)
     canvas.tag_bind(backButton, "<Button-1>", Del_Add_GUI)
-
+    app.bind("<Escape>", Del_Add_GUI)
 
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* Deleting cards -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*#
 def Del_Card(event, questionList):
@@ -174,6 +181,9 @@ def Del_Card(event, questionList):
 
     except IndexError:
         messagebox.showerror("Error", "You have to select a question.")
+    except TclError:
+        messagebox.showerror("Error", "You have to select a question.")
+
 
     Del_Card_GUI(True)
 
@@ -190,7 +200,7 @@ def Del_Card_GUI(event):
 
     backButton = canvas.create_image(20, 485, image = backImage)
     canvas.tag_bind(backButton, "<Button-1>", Del_Add_GUI)
-
+    app.bind("<Escape>", Del_Add_GUI)
     questionList = Listbox(app, width = "40", height = "11", font = myFontLittle, bg = "#2C5F8D", fg = "white", relief = "flat", activestyle = "none")
 
     questionsAndGroup = []
@@ -211,9 +221,64 @@ def Del_Card_GUI(event):
 
     canvas.create_window(200, 180, window = questionList )
 
-    AddLabel = canvas.create_text(200, 420, text = "Delete", fill = "#dbdbdb", font = myFontBig)
-    MakeLabel(AddLabel)
+    DelCardLabel = canvas.create_text(200, 420, text = "Delete", fill = "#dbdbdb", font = myFontBig)
+    MakeLabel(DelCardLabel)
+    canvas.tag_bind(DelCardLabel, "<Button-1>", lambda event: Del_Card(event, questionList))
 
+    app.bind("<Return>", lambda event: Del_Card(event, questionList))
+    app.bind("<Delete>", lambda event: Del_Card(event, questionList))
+
+
+#-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* Learning -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*#
+def chooseLearning_Gui(event):
+    clear()
+
+    GroupLabel1 = canvas.create_text(200, 50, text = "What do you want", fill = "#dbdbdb", font = myFontMedium)
+    GroupLabel2 = canvas.create_text(200, 100, text = "to practice ?", fill = "#dbdbdb", font = myFontMedium)
+
+    groupListBox = Listbox(app, width = "40", height = "10", font = myFontLittle, bg = "#2C5F8D", fg = "white", relief = "flat", activestyle = "none")
+
+    path = getcwd() + "/data"
+    groupNames = [f for f in listdir(path) if isfile(join(path, f))]
+    groupList = []
+
+    for element in groupNames:
+        if element.endswith(".txt"):
+            groupList.append(element.replace(".txt", ""))
+
+    pos = 0
+
+    for i in range(len(groupList)):
+        if (i % 2) == 0:
+            groupListBox.insert(pos, groupList[i])
+            pos += 1
+
+    canvas.create_window(200, 250, window = groupListBox )
+
+def Learning_GUI(event):
+    clear()
+
+    path = getcwd() + "/data"
+    groupnames = [f for f in listdir(path) if isfile(join(path, f))]
+    groupList = []
+
+    for element in groupnames:
+        if element.endswith(".txt"):
+            groupList.append(element.replace(".txt", ""))
+
+    if len(groupList) != 0:
+        chooseLearning_Gui(True)
+    else:
+        noCardLabel1 = canvas.create_text(200, 150, text = "Before learning,", fill = "#dbdbdb", font = myFontMedium)
+        noCardLabel2 = canvas.create_text(200, 200, text = "you need to create cards.", fill = "#dbdbdb", font = myFontMedium)
+
+        BackLabel = canvas.create_text(200, 300, text = "Back", fill = "#dbdbdb", font = myFontBig)
+        MakeLabel(BackLabel)
+        canvas.tag_bind(BackLabel, "<Button-1>", menu)
+
+    backButton = canvas.create_image(20, 485, image = backImage)
+    canvas.tag_bind(backButton, "<Button-1>", menu)
+    app.bind("<Escape>", menu)
 
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* Rest of the GUI -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*#
 def menu(event):
@@ -225,6 +290,7 @@ def menu(event):
 
     LearnLabel = canvas.create_text(200, 235, text = "Learn", fill = "#dbdbdb", font = myFontBig)
     MakeLabel(LearnLabel)
+    canvas.tag_bind(LearnLabel, "<Button-1>", Learning_GUI)
 
     SettingsLabel = canvas.create_text(200, 360, text = "Settings", fill = "#dbdbdb", font = myFontBig)
     MakeLabel(SettingsLabel)
@@ -242,7 +308,7 @@ def Del_Add_GUI(event):
 
     backButton = canvas.create_image(20, 485, image = backImage)
     canvas.tag_bind(backButton, "<Button-1>", menu)
-
+    app.bind("<Escape>", menu)
 
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* Start the GUI -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*#
 clear()
