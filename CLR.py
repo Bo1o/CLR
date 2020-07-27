@@ -3,7 +3,7 @@ import tkinter.font as font
 from tkinter import ttk
 from tkinter import messagebox
 from PIL import ImageTk, Image
-from os import listdir, getcwd
+from os import listdir, getcwd, remove
 from os.path import isfile, join
 
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* Initialization -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*#
@@ -61,25 +61,27 @@ def saveQuestion(event, questionEntry, answerEntry, groupCombo):
         messagebox.showerror("Error", "Please give a name to your group.")
     elif group == "Create a new group":
         messagebox.showerror("Error", "Please choose an other group or name a new one.")
+    elif "~" in group:
+        messagebox.showerror("Error", "'~' : This character is not allowed")
     else:
-        files = ["data/cards.txt", "data/" + group + ".txt"]
-        for i in range(2):
-            try:
-                with open(files[i], "r") as file:
-                    data = file.readlines()
-            except FileNotFoundError:
-                with open(files[i], "w") as file:
-                    file.write("")
+        fileGroup = "data/" + group + ".txt"
+        try:
+            with open(fileGroup, "r") as file:
+                data = file.readlines()
 
-                with open(files[i], "r") as file:
-                    data = file.readlines()
+        except FileNotFoundError:
+            with open(fileGroup, "w") as file:
+                file.write("")
 
-            data.append(question + "\n")
-            data.append(answer + "\n")
+            with open(fileGroup, "r") as file:
+                data = file.readlines()
 
-            with open(files[i], "w") as file:
-                for i in range(len(data)):
-                    file.write(data[i])
+        data.append(question + "\n")
+        data.append(answer + "\n")
+
+        with open(fileGroup, "w") as file:
+            for i in range(len(data)):
+                file.write(data[i])
 
         Add_Card_GUI(True)
 
@@ -101,9 +103,8 @@ def Add_Card_GUI(event):
     groupList = ["Create a new group"]
 
     for element in groupnames:
-        if not element == "cards.txt":
-            if element.endswith(".txt"):
-                groupList.append(element.replace(".txt", ""))
+        if element.endswith(".txt"):
+            groupList.append(element.replace(".txt", ""))
 
     groupCombo = ttk.Combobox(app, values = groupList, width = "27", font = myFontLittle)
     groupCombo.current(0)
@@ -130,15 +131,42 @@ def Del_Card(event, questionList):
     selected = questionList.curselection()
 
     try:
-        with open("data/cards.txt", "r") as file:
+        selectedQuestion = questionList.get(selected)
+        found = False
+        name = ""
+        quest = ""
+        for char in selectedQuestion:
+            if char == "~":
+                found = True
+            if found == True:
+                name += char
+            if found == False:
+                quest += char
+
+        quest = quest[:-1]
+        filename = name.replace("~ ", "").replace(" ~", "").replace("\n", "")
+
+        path = "data/" + filename + ".txt"
+
+        with open(path, "r") as file:
             data = file.readlines()
 
-        del data[selected[0] * 2]
-        del data[selected[0] * 2]
+        index = ""
 
-        with open("data/cards.txt", "w") as file:
-            for element in data:
-                file.write(element)
+        for i in range(len(data)):
+            if data[i].replace("\n", "") == quest:
+                index = i
+                del data[i]
+                del data[i]
+                break
+
+        if index != "":
+            if len(data) != 0:
+                with open(path, "w") as file:
+                    for element in data:
+                        file.write(element)
+            else:
+                remove(path)
 
     except IndexError:
         messagebox.showerror("Error", "You have to select a question.")
@@ -148,19 +176,33 @@ def Del_Card(event, questionList):
 def Del_Card_GUI(event):
     clear()
 
+    path = getcwd() + "/data"
+    groupnames = [f for f in listdir(path) if isfile(join(path, f))]
+    groupList = []
+
+    for element in groupnames:
+        if element.endswith(".txt"):
+            groupList.append(element.replace(".txt", ""))
+
     backButton = canvas.create_image(20, 485, image = backImage)
     canvas.tag_bind(backButton, "<Button-1>", Del_Add_GUI)
 
-    questionList = Listbox(app, width = "40", height = "11", font = myFontLittle, bg = "#2C5F8D", fg = "white", relief = "flat")
+    questionList = Listbox(app, width = "40", height = "11", font = myFontLittle, bg = "#2C5F8D", fg = "white", relief = "flat", activestyle = "none")
 
-    with open("data/cards.txt", "r") as file:
-        data = file.readlines()
+    questionsAndGroup = []
+
+    for i in range(len(groupList)):
+        with open("data/" + groupList[i] + ".txt", "r") as file:
+            data = file.readlines()
+            for x in range(len(data)):
+                data[x] = data[x].replace("\n", "") + " ~ " + groupList[i] + " ~"
+                questionsAndGroup.append(data[x])
 
     pos = 0
 
-    for i in range(len(data)):
+    for i in range(len(questionsAndGroup)):
         if (i % 2) == 0:
-            questionList.insert(pos, data[i])
+            questionList.insert(pos, questionsAndGroup[i])
             pos += 1
 
     canvas.create_window(200, 180, window = questionList )
