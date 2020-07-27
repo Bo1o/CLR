@@ -18,6 +18,8 @@ canvas.pack()
 
 backgroundImage = ImageTk.PhotoImage(Image.open("data/img/background.png").resize((800, 1100)))
 backImage = ImageTk.PhotoImage(Image.open("data/img/back.png").resize((32, 32)))
+logoandnameImage = ImageTk.PhotoImage(Image.open("data/img/logoandname_white.png").resize((64,32)))
+
 
 iconImage = ImageTk.PhotoImage(Image.open("data/img/logo.png"))
 app.iconphoto(False, iconImage)
@@ -43,6 +45,7 @@ combostyle.theme_use('combostyle')
 def clear():
     canvas.delete("all")
     canvas.create_image(0, 0, image = backgroundImage)
+    canvas.create_image(360, 480, image = logoandnameImage)
 
 
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* Saving cards -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*#
