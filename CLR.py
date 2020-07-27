@@ -47,6 +47,16 @@ def clear():
     canvas.create_image(0, 0, image = backgroundImage)
     canvas.create_image(360, 480, image = logoandnameImage)
 
+def MakeLabel(label):
+    canvas.tag_bind(label, "<Enter>", lambda event: enterLabel(event, label))
+    canvas.tag_bind(label, "<Leave>", lambda event: leaveLabel(event, label))
+
+def enterLabel(event, label):
+    canvas.itemconfig(label, fill = "white")
+
+def leaveLabel(event, label):
+    canvas.itemconfig(label, fill = "#dbdbdb")
+
 
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* Saving cards -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*#
 def saveQuestion(event, questionEntry, answerEntry, groupCombo):
@@ -114,16 +124,7 @@ def Add_Card_GUI(event):
     canvas.create_window(225, 330, window = groupCombo)
 
     SubmitButton = canvas.create_text(200, 400, text = "Submit", fill = "#dbdbdb", font = myFontBig)
-
-    def enterSubmit(event):
-        canvas.itemconfig(SubmitButton, fill = "white")
-
-    def leaveSubmit(event):
-        canvas.itemconfig(SubmitButton, fill = "#dbdbdb")
-
-    canvas.tag_bind(SubmitButton, "<Enter>", enterSubmit)
-    canvas.tag_bind(SubmitButton, "<Leave>", leaveSubmit)
-    canvas.tag_bind(SubmitButton, "<Button-1>", lambda event: saveQuestion(event, questionEntry, answerEntry, groupCombo))
+    MakeLabel(SubmitButton)
 
     backButton = canvas.create_image(20, 485, image = backImage)
     canvas.tag_bind(backButton, "<Button-1>", Del_Add_GUI)
@@ -211,16 +212,7 @@ def Del_Card_GUI(event):
     canvas.create_window(200, 180, window = questionList )
 
     AddLabel = canvas.create_text(200, 420, text = "Delete", fill = "#dbdbdb", font = myFontBig)
-
-    def enterAdd(event):
-        canvas.itemconfig(AddLabel, fill = "white")
-
-    def leaveAdd(event):
-        canvas.itemconfig(AddLabel, fill = "#dbdbdb")
-
-    canvas.tag_bind(AddLabel, "<Enter>", enterAdd)
-    canvas.tag_bind(AddLabel, "<Leave>", leaveAdd)
-    canvas.tag_bind(AddLabel, "<Button-1>", lambda event: Del_Card(event, questionList))
+    MakeLabel(AddLabel)
 
 
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* Rest of the GUI -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*#
@@ -228,65 +220,24 @@ def menu(event):
     clear()
 
     CardsLabel = canvas.create_text(200, 110, text = "Manage cards", fill = "#dbdbdb", font = myFontBig)
-
-    def enterAdd(event):
-        canvas.itemconfig(CardsLabel, fill = "white")
-
-    def leaveAdd(event):
-        canvas.itemconfig(CardsLabel, fill = "#dbdbdb")
-
-    canvas.tag_bind(CardsLabel, "<Enter>", enterAdd)
-    canvas.tag_bind(CardsLabel, "<Leave>", leaveAdd)
+    MakeLabel(CardsLabel)
     canvas.tag_bind(CardsLabel, "<Button-1>", Del_Add_GUI)
 
     LearnLabel = canvas.create_text(200, 235, text = "Learn", fill = "#dbdbdb", font = myFontBig)
-
-    def enterLearn(event):
-        canvas.itemconfig(LearnLabel, fill = "white")
-
-    def leaveLearn(event):
-        canvas.itemconfig(LearnLabel, fill = "#dbdbdb")
-
-    canvas.tag_bind(LearnLabel, "<Enter>", enterLearn)
-    canvas.tag_bind(LearnLabel, "<Leave>", leaveLearn)
+    MakeLabel(LearnLabel)
 
     SettingsLabel = canvas.create_text(200, 360, text = "Settings", fill = "#dbdbdb", font = myFontBig)
-
-    def enterSettings(event):
-        canvas.itemconfig(SettingsLabel, fill = "white")
-
-    def leaveSettings(event):
-        canvas.itemconfig(SettingsLabel, fill = "#dbdbdb")
-
-    canvas.tag_bind(SettingsLabel, "<Enter>", enterSettings)
-    canvas.tag_bind(SettingsLabel, "<Leave>", leaveSettings)
+    MakeLabel(SettingsLabel)
 
 def Del_Add_GUI(event):
     clear()
 
     AddLabel = canvas.create_text(200, 110, text = "Add card", fill = "#dbdbdb", font = myFontBig)
-
-    def enterAdd(event):
-        canvas.itemconfig(AddLabel, fill = "white")
-
-    def leaveAdd(event):
-        canvas.itemconfig(AddLabel, fill = "#dbdbdb")
-
-    canvas.tag_bind(AddLabel, "<Enter>", enterAdd)
-    canvas.tag_bind(AddLabel, "<Leave>", leaveAdd)
+    MakeLabel(AddLabel)
     canvas.tag_bind(AddLabel, "<Button-1>", Add_Card_GUI)
 
-
     DelLabel = canvas.create_text(200, 300, text = "Delete card", fill = "#dbdbdb", font = myFontBig)
-
-    def enterDel(event):
-        canvas.itemconfig(DelLabel, fill = "white")
-
-    def leaveDel(event):
-        canvas.itemconfig(DelLabel, fill = "#dbdbdb")
-
-    canvas.tag_bind(DelLabel, "<Enter>", enterDel)
-    canvas.tag_bind(DelLabel, "<Leave>", leaveDel)
+    MakeLabel(DelLabel)
     canvas.tag_bind(DelLabel, "<Button-1>", Del_Card_GUI)
 
     backButton = canvas.create_image(20, 485, image = backImage)
