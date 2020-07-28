@@ -1,10 +1,11 @@
 from tkinter import *
-import tkinter.font as font
 from tkinter import ttk
 from tkinter import messagebox
 from PIL import ImageTk, Image
 from os import listdir, getcwd, remove
 from os.path import isfile, join
+from random import randint
+import tkinter.font as font
 
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* Initialization -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*#
 app = Tk()
@@ -105,15 +106,15 @@ def saveQuestion(event, questionEntry, answerEntry, groupCombo):
 def Add_Card_GUI(event):
     clear()
 
-    questionLabel = canvas.create_text(200, 50, text = "Question", fill = "#dbdbdb", font = myFontBig)
+    questionLabel = canvas.create_text(200, 50, text = "Question", fill = "white", font = myFontBig)
     questionEntry = Entry(canvas, bg = "#2C5F8D", width = "40", font = myFontLittle, fg = "white", justify = "center", relief = "flat")
     canvas.create_window(200,110,window = questionEntry)
 
-    answerLabel = canvas.create_text(200, 180, text = "Answer", fill = "#dbdbdb", font = myFontBig)
+    answerLabel = canvas.create_text(200, 180, text = "Answer", fill = "white", font = myFontBig)
     answerEntry = Entry(canvas, bg = "#256A85", width = "40", font = myFontLittle, fg = "white", justify = "center", relief = "flat")
     canvas.create_window(200, 250, window = answerEntry)
 
-    groupLabel = canvas.create_text(50, 330, text = "Group", fill = "#dbdbdb", font = myFontLittle)
+    groupLabel = canvas.create_text(50, 330, text = "Group", fill = "white", font = myFontLittle)
 
     path = getcwd() + "/data"
     groupnames = [f for f in listdir(path) if isfile(join(path, f))]
@@ -136,6 +137,7 @@ def Add_Card_GUI(event):
     backButton = canvas.create_image(20, 485, image = backImage)
     canvas.tag_bind(backButton, "<Button-1>", Del_Add_GUI)
     app.bind("<Escape>", Del_Add_GUI)
+
 
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* Deleting cards -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*#
 def Del_Card(event, questionList):
@@ -230,11 +232,46 @@ def Del_Card_GUI(event):
 
 
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* Learning -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*#
+def Learning(event, listBox, groupList):
+    groupIndex = listBox.curselection()
+    try:
+        group = groupList[groupIndex[0]]
+        clear()
+
+        questions = []
+        answers = []
+
+        with open("data/" + group + ".txt", "r") as file:
+            lines = file.readlines()
+
+        for i in range(len(lines)):
+            lines[i] = lines[i].replace("\n", "")
+            if i % 2 == 0:
+                questions.append(lines[i])
+            else:
+                answers.append(lines[i])
+
+        height = 100
+
+        questionIndex = randint(0, len(questions) - 1)
+
+        if len(questions[questionIndex]) <= 22:
+            questionLabel = canvas.create_text(200, 150, text = questions[questionIndex], fill = "white", font = myFontMedium)
+        else:
+            chars = list(questions[questionIndex])
+            for i in range (len(char) - 1):
+                if chars[i] == " " and i < 22:
+                    # NEEDS TO BE FILLED
+                    pass
+
+    except IndexError:
+        messagebox.showerror("Error", "You have to select a group.")
+
 def chooseLearning_Gui(event):
     clear()
 
-    GroupLabel1 = canvas.create_text(200, 50, text = "What do you want", fill = "#dbdbdb", font = myFontMedium)
-    GroupLabel2 = canvas.create_text(200, 100, text = "to practice ?", fill = "#dbdbdb", font = myFontMedium)
+    GroupLabel1 = canvas.create_text(200, 50, text = "What do you want", fill = "white", font = myFontMedium)
+    GroupLabel2 = canvas.create_text(200, 100, text = "to practice ?", fill = "white", font = myFontMedium)
 
     groupListBox = Listbox(app, width = "40", height = "10", font = myFontLittle, bg = "#2C5F8D", fg = "white", relief = "flat", activestyle = "none")
 
@@ -249,11 +286,15 @@ def chooseLearning_Gui(event):
     pos = 0
 
     for i in range(len(groupList)):
-        if (i % 2) == 0:
-            groupListBox.insert(pos, groupList[i])
-            pos += 1
+        groupListBox.insert(pos, groupList[i])
+        pos += 1
 
     canvas.create_window(200, 250, window = groupListBox )
+
+    ValidateLabel = canvas.create_text(200, 420, text = "Validate", fill = "#dbdbdb", font = myFontBig)
+    MakeLabel(ValidateLabel)
+
+    canvas.tag_bind(ValidateLabel, "<Button-1>", lambda event: Learning(event, groupListBox, groupList))
 
 def Learning_GUI(event):
     clear()
@@ -269,8 +310,8 @@ def Learning_GUI(event):
     if len(groupList) != 0:
         chooseLearning_Gui(True)
     else:
-        noCardLabel1 = canvas.create_text(200, 150, text = "Before learning,", fill = "#dbdbdb", font = myFontMedium)
-        noCardLabel2 = canvas.create_text(200, 200, text = "you need to create cards.", fill = "#dbdbdb", font = myFontMedium)
+        noCardLabel1 = canvas.create_text(200, 150, text = "Before learning,", fill = "white", font = myFontMedium)
+        noCardLabel2 = canvas.create_text(200, 200, text = "you need to create cards.", fill = "white", font = myFontMedium)
 
         BackLabel = canvas.create_text(200, 300, text = "Back", fill = "#dbdbdb", font = myFontBig)
         MakeLabel(BackLabel)
@@ -279,6 +320,7 @@ def Learning_GUI(event):
     backButton = canvas.create_image(20, 485, image = backImage)
     canvas.tag_bind(backButton, "<Button-1>", menu)
     app.bind("<Escape>", menu)
+
 
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* Rest of the GUI -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*#
 def menu(event):
@@ -309,6 +351,7 @@ def Del_Add_GUI(event):
     backButton = canvas.create_image(20, 485, image = backImage)
     canvas.tag_bind(backButton, "<Button-1>", menu)
     app.bind("<Escape>", menu)
+
 
 #-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* Start the GUI -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*#
 clear()
